@@ -587,7 +587,15 @@ function handlePad(color) {
 // ─── ROUNDS ───────────────────────────────────────────────────────────────────
 function nextRound() {
   const pool = numColors === 3 ? COLOR_3 : ALL_COLORS;
-  sequence.push(pool[Math.floor(Math.random() * pool.length)]);
+  let nextColor;
+  if (sequence.length >= 2 && sequence[sequence.length - 1] === sequence[sequence.length - 2]) {
+    const forbidden = sequence[sequence.length - 1];
+    const available = pool.filter(c => c !== forbidden);
+    nextColor = available[Math.floor(Math.random() * available.length)];
+  } else {
+    nextColor = pool[Math.floor(Math.random() * pool.length)];
+  }
+  sequence.push(nextColor);
   playSequence();
 }
 
