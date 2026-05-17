@@ -262,13 +262,37 @@ header {
 .modal-close:hover { filter: brightness(1.12); }
 
 /* ══ RESPONSIVE ══ */
-@media (max-width: 440px) {
-  .score-cards { flex-direction: column; }
-  .opt-sections { gap: 18px; }
+@media (max-width: 600px) {
+  header { padding: 10px 16px; }
+  .logo-icon { width: 38px; height: 38px; font-size: 1.3rem; border-radius: 10px; }
+  .logo-text h1 { font-size: 1.2rem; }
+  .logo-text p { font-size: 0.7rem; }
+  .header-btns .hbtn { padding: 8px 12px; font-size: 0.85rem; }
   .header-btns .hbtn span { display: none; }
+  
+  .screen { padding: 16px 14px 20px; gap: 14px; }
+  .btn-start-big { padding: 16px 24px; font-size: 1.3rem; border-radius: 16px; }
+  
+  .score-cards { flex-direction: row; gap: 12px; }
+  .score-card { padding: 12px 14px; flex-direction: column; text-align: center; gap: 8px; border-radius: 14px; }
+  .card-icon { font-size: 1.8rem; }
+  .card-value { font-size: 1.8rem; margin: 0; }
+  .card-sub { font-size: 0.72rem; line-height: 1.15; }
+  
+  .options-panel { padding: 16px 18px; border-radius: 16px; }
+  .options-panel h2 { font-size: 1rem; margin-bottom: 14px; }
+  .opt-sections { gap: 14px; flex-direction: column; }
+  .opt-group { min-width: 100%; }
+  .opt-group-title { font-size: 0.78rem; margin-bottom: 8px; }
+  .opt-btn { padding: 10px 8px; font-size: 0.95rem; border-radius: 10px; }
+  .opt-btn span { font-size: 0.68rem; margin-top: 2px; }
+  
+  .tip { font-size: 0.8rem; line-height: 1.4; }
+  
   .pad { min-height: 120px; padding: 18px 10px 14px; }
-  .game-topbar { flex-wrap: wrap; }
+  .game-topbar { flex-wrap: wrap; padding: 12px 16px; }
 }
+
 </style>
 </head>
 <body>
@@ -288,6 +312,8 @@ header {
 
 <!-- ══ TELA INICIAL ══ -->
 <div class="screen" id="screen-home">
+
+  <button class="btn-start-big" id="btn-start">▶ COMEÇAR O JOGO</button>
 
   <div class="score-cards">
     <div class="score-card record">
@@ -327,8 +353,6 @@ header {
       </div>
     </div>
   </div>
-
-  <button class="btn-start-big" id="btn-start">▶ COMEÇAR O JOGO</button>
 
   <p class="tip">💡 <strong>Dica:</strong> A cada rodada, o jogo adiciona uma nova cor à sequência. Repita na mesma ordem para pontuar!</p>
 </div>
