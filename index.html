@@ -51,14 +51,15 @@ header {
 .logo-text p  { font-size: .78rem; color: var(--muted); margin-top: 2px; }
 .header-btns { display: flex; gap: 10px; }
 .hbtn {
-  font-family: 'Fredoka One', cursive; font-size: .95rem;
-  padding: 10px 18px; border: none; border-radius: 10px;
+  font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+  padding: 12px 20px; border: none; border-radius: 10px;
   cursor: pointer; display: flex; align-items: center; gap: 7px;
   transition: transform .15s, filter .15s;
 }
 .hbtn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 .hbtn-sound { background: var(--teal); color: #fff; }
 .hbtn-how   { background: var(--blue); color: #fff; }
+.hbtn-close { background: var(--red); color: #fff; }
 
 /* ══ SCREENS ══ */
 .screen {
@@ -112,8 +113,8 @@ header {
 
 /* ══ START BUTTON ══ */
 .btn-start-big {
-  font-family: 'Fredoka One', cursive; font-size: clamp(1.4rem,5vw,2rem);
-  padding: 22px 40px; width: 100%; max-width: 620px;
+  font-family: 'Fredoka One', cursive; font-size: clamp(1.6rem,6vw,2.2rem);
+  padding: 26px 40px; width: 100%; max-width: 620px;
   border: none; border-radius: 18px;
   background: linear-gradient(135deg, var(--teal), #16a085);
   color: #fff; cursor: pointer;
@@ -162,8 +163,8 @@ header {
 .status-banner.success  { background: rgba(243,156,18,.18); border: 2px solid rgba(243,156,18,.35); }
 .status-banner.error    { background: rgba(232,67,147,.18); border: 2px solid rgba(232,67,147,.45); }
 .status-icon { font-size: 2rem; flex-shrink: 0; }
-.status-main { font-family: 'Fredoka One', cursive; font-size: clamp(1.1rem,4vw,1.5rem); }
-.status-sub  { font-size: .82rem; opacity: .7; margin-top: 2px; }
+.status-main { font-family: 'Fredoka One', cursive; font-size: clamp(1.5rem,6vw,2.2rem); }
+.status-sub  { font-size: 1rem; opacity: .8; margin-top: 4px; }
 
 /* ══ BOARD ══ */
 .board {
@@ -192,7 +193,7 @@ header {
 
 .pad:not([disabled]):hover  { filter: brightness(1.12); transform: scale(1.04); }
 .pad:not([disabled]):active { transform: scale(.94); }
-.pad[disabled] { cursor: default; }
+.pad[disabled] { cursor: default; pointer-events: none; }
 
 .pad-icon { font-size: clamp(2rem,7vw,2.8rem); }
 .pad-name {
@@ -225,8 +226,8 @@ header {
 @keyframes pulse { from {opacity:1;transform:scale(1);} to {opacity:.5;transform:scale(1.08);} }
 .over-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 .obtn {
-  font-family: 'Fredoka One', cursive; font-size: clamp(1.2rem,4vw,1.6rem);
-  padding: 18px; border: none; border-radius: 14px; cursor: pointer;
+  font-family: 'Fredoka One', cursive; font-size: clamp(1.4rem,5vw,1.8rem);
+  padding: 22px; border: none; border-radius: 14px; cursor: pointer;
   transition: transform .15s, filter .15s;
   display: flex; align-items: center; justify-content: center; gap: 10px;
 }
@@ -307,6 +308,7 @@ header {
   <div class="header-btns">
     <button class="hbtn hbtn-sound" id="btn-sound">🔊 <span>Com Som</span></button>
     <button class="hbtn hbtn-how"   id="btn-how">❓ <span>Como Jogar</span></button>
+    <button class="hbtn hbtn-close" id="btn-close" onclick="fecharJogo()">❌ <span>Fechar</span></button>
   </div>
 </header>
 
@@ -334,25 +336,7 @@ header {
     </div>
   </div>
 
-  <div class="options-panel">
-    <h2>⚙️ Opções da Partida &nbsp;<small style="font-family:'Nunito';font-size:.75em;font-weight:700;opacity:.55">(Escolha como prefere jogar)</small></h2>
-    <div class="opt-sections">
-      <div class="opt-group">
-        <div class="opt-group-title">🟦 Quantidade de Cores:</div>
-        <div class="opt-btns">
-          <button class="opt-btn" id="opt-3" data-colors="3">3 Cores<span>Mais fácil para começar</span></button>
-          <button class="opt-btn active" id="opt-4" data-colors="4">4 Cores<span>O clássico Genius</span></button>
-        </div>
-      </div>
-      <div class="opt-group">
-        <div class="opt-group-title">🕐 Velocidade das Luzes:</div>
-        <div class="opt-btns">
-          <button class="opt-btn" id="opt-slow" data-speed="slow">Lenta<span>Ideal para observar com calma</span></button>
-          <button class="opt-btn active" id="opt-normal" data-speed="normal">Normal<span>Desafio tradicional</span></button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <p class="tip">💡 <strong>Dica:</strong> A cada rodada, o jogo adiciona uma nova cor à sequência. Repita na mesma ordem para pontuar!</p>
 </div>
@@ -439,10 +423,9 @@ header {
 const ALL_COLORS = ['green','red','yellow','blue'];
 const COLOR_3    = ['green','red','yellow'];
 const FREQS      = { green: 415, red: 310, yellow: 252, blue: 209 };
-const SPEED_MS   = { slow: 620, normal: 390 };
+const FLASH_DURATION_MS = 2000;
+const FLASH_INTERVAL_MS = 500;
 
-let numColors = 4;
-let speedMode = 'normal';
 let soundOn   = true;
 
 let sequence  = [];
@@ -452,21 +435,13 @@ let accepting = false;
 let audioCtx  = null;
 let lastScore = 0;
 
-// ─── OPÇÕES ───────────────────────────────────────────────────────────────────
-document.querySelectorAll('[data-colors]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('[data-colors]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    numColors = parseInt(btn.dataset.colors);
-  });
-});
-document.querySelectorAll('[data-speed]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    speedMode = btn.dataset.speed;
-  });
-});
+// ─── FECHAR JOGO ──────────────────────────────────────────────────────────────
+function fecharJogo() {
+  try {
+    window.close();
+  } catch (e) {}
+  alert("Caso a janela não feche automaticamente, por favor feche a aba pelo botão do seu navegador.");
+}
 
 // ─── SOM ──────────────────────────────────────────────────────────────────────
 document.getElementById('btn-sound').addEventListener('click', () => {
@@ -560,11 +535,10 @@ async function playSequence() {
   setStatus('watching','👁️','Observe a sequência…','Preste atenção nas cores que se iluminam');
   setPadsEnabled(false);
   await sleep(700);
-  const base  = SPEED_MS[speedMode];
-  const speed = Math.max(130, base - phase * 14);
+  const speed = FLASH_DURATION_MS;
   for (let i = 0; i < sequence.length; i++) {
     await flashPad(sequence[i], speed);
-    await sleep(speed * 0.42);
+    await sleep(FLASH_INTERVAL_MS);
   }
   setStatus('playing','👆','SUA VEZ DE JOGAR!','Toque nas cores na exata ordem que você viu.');
   playerPos = 0; accepting = true; setPadsEnabled(true);
@@ -586,7 +560,7 @@ function handlePad(color) {
 
 // ─── ROUNDS ───────────────────────────────────────────────────────────────────
 function nextRound() {
-  const pool = numColors === 3 ? COLOR_3 : ALL_COLORS;
+  const pool = ALL_COLORS;
   let nextColor;
   if (sequence.length >= 2 && sequence[sequence.length - 1] === sequence[sequence.length - 2]) {
     const forbidden = sequence[sequence.length - 1];
@@ -619,11 +593,10 @@ function gameOver() {
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function setPadsEnabled(on) {
-  const show = numColors === 3 ? COLOR_3 : ALL_COLORS;
   ALL_COLORS.forEach(c => {
     const el = document.getElementById('pad-' + c);
     el.disabled = !on;
-    el.style.display = (numColors === 3 && c === 'blue') ? 'none' : '';
+    el.style.display = '';
   });
 }
 
@@ -640,8 +613,7 @@ function updateHomeScores() {
 function startGame() {
   sequence = []; playerPos = 0; phase = 0; lastScore = 0; accepting = false;
   updatePtsDisplay();
-  // show/hide blue based on numColors
-  document.getElementById('pad-blue').style.display = numColors === 3 ? 'none' : '';
+  document.getElementById('pad-blue').style.display = '';
   showScreen('screen-game');
   setStatus('watching','⏳','Prepare-se…','O jogo vai começar em instantes');
   setTimeout(nextRound, 900);
